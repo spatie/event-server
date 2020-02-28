@@ -4,10 +4,13 @@ namespace Spatie\EventServer\Server\Events;
 
 use Carbon\Carbon;
 use Exception;
+use Spatie\EventServer\Domain\Event;
 
 class EventStore
 {
     private string $storagePath;
+
+    private EventBus $eventBus;
 
     public function __construct(?string $storagePath)
     {
@@ -18,7 +21,14 @@ class EventStore
         $this->storagePath = $storagePath;
     }
 
-    public function store(object $event): void
+    public function setEventBus(EventBus $eventBus): self
+    {
+        $this->eventBus = $eventBus;
+
+        return $this;
+    }
+
+    public function store(Event $event): void
     {
         $fileName = implode('/', [
             $this->storagePath,
@@ -26,6 +36,17 @@ class EventStore
         ]);
 
         file_put_contents($fileName, serialize($event));
+    }
+
+    public function replay(): void
+    {
+        $files = array_filter((array) glob("{$this->storagePath}/*"));
+
+        foreach ($files as $file) {
+            $event = unserialize(file_get_contents($file));
+
+            $this->eventBus->handle($event);
+        }
     }
 
     public function clean(): void

@@ -2,7 +2,9 @@
 
 namespace Spatie\EventServer\Tests\Fakes;
 
-class TestEvent
+use Spatie\EventServer\Domain\Event;
+
+class TestEvent extends Event
 {
     public string $uuid;
 

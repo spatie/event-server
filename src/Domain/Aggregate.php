@@ -2,9 +2,6 @@
 
 namespace Spatie\EventServer\Domain;
 
-use ReflectionClass;
-use Spatie\EventServer\Container;
-
 abstract class Aggregate
 {
     public string $uuid;
@@ -14,29 +11,32 @@ abstract class Aggregate
     /**
      * @return \Spatie\EventServer\Domain\Aggregate|static
      */
-    public static function new(): Aggregate
+    public static function new(?string $uuid = null): Aggregate
     {
-        return new static();
+        return new static($uuid);
     }
 
-    protected function event(object $event): self
+    public function __construct(?string $uuid = null)
     {
-        $eventBus = Container::make()->eventBus();
+        $this->uuid = $uuid ?? uuid();
+    }
 
-        $eventBus->dispatch($event);
+    protected function event(Event $event): self
+    {
+        $event = $event->forAggregate($this);
+
+        dispatch($event);
 
         $this->apply($event);
-
-        $this->version++;
 
         return $this;
     }
 
-    public function apply(object $event): self
+    public function apply(Event $event): self
     {
-        $eventName = (new ReflectionClass($event))->getShortName();
+        $this->version++;
 
-        $handler = "on{$eventName}";
+        $handler = $event->getHandlerName();
 
         if (! method_exists($this, $handler)) {
             return $this;

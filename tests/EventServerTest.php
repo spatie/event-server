@@ -2,7 +2,8 @@
 
 namespace Spatie\EventServer\Tests;
 
-use Carbon\Carbon;
+use Spatie\EventServer\Tests\Fakes\IncreaseBalanceEvent;
+use Spatie\EventServer\Tests\Fakes\TestAggregate;
 use Spatie\EventServer\Tests\Fakes\TestEvent;
 
 class EventServerTest extends TestCase
@@ -10,15 +11,11 @@ class EventServerTest extends TestCase
     /** @test */
     public function event_is_stored()
     {
-        $server = $this->container->server();
-
-        $server->run();
-
-        $gateway = $this->container->gateway();
+        $this->server->run();
 
         $event = new TestEvent('uuid');
 
-        $gateway->event($event);
+        $this->gateway->event($event);
 
         $this->assertEventStored($event);
     }
@@ -26,14 +23,27 @@ class EventServerTest extends TestCase
     /** @test */
     public function stored_events_are_loaded_on_startup()
     {
+        $aggregate = new TestAggregate();
+
+        $event = (new IncreaseBalanceEvent())->forAggregate($aggregate);
+
         $this->storeEvents(
-            new TestEvent('1'),
-            new TestEvent('2'),
-            new TestEvent('3'),
+            $event->withAmount(10),
+            $event->withAmount(5),
+            $event->withAmount(1),
         );
 
-        $server = $this->container->server();
+        $this->server->run();
 
-        $server->run();
+        $repository = $this->container->aggregateRepository();
+
+        /** @var TestAggregate $storedAggregate */
+        $storedAggregate = $repository->resolve(
+            get_class($aggregate),
+            $aggregate->uuid
+        );
+
+        $this->assertEquals(16, $storedAggregate->balance);
+        $this->assertEquals(3, $storedAggregate->version);
     }
 }

@@ -9,6 +9,8 @@ class Logger
 {
     private OutputInterface $output;
 
+    private ?string $prefix = null;
+
     public function __construct(OutputInterface $output)
     {
         $this->output = $output;
@@ -18,7 +20,20 @@ class Logger
     {
         $timestamp = Carbon::now()->toDateTimeString();
 
-        $this->output->writeln("[$timestamp] {$line}");
+        $prefix = $this->prefix
+            ? "[$this->prefix] "
+            : '';
+
+        $this->output->writeln("[$timestamp] {$prefix}{$line}");
+    }
+
+    public function prefix(string $prefix): self
+    {
+        $clone = clone $this;
+
+        $clone->prefix = $prefix;
+
+        return $clone;
     }
 
     public function error(string $line): void

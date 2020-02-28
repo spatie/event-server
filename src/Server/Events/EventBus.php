@@ -4,24 +4,26 @@ namespace Spatie\EventServer\Server\Events;
 
 use ReflectionClass;
 use Spatie\EventServer\Client\Gateway;
+use Spatie\EventServer\Domain\AggregateRepository;
+use Spatie\EventServer\Domain\Event;
 
 class EventBus
 {
-    private EventStore $eventStore;
-
     private Gateway $gateway;
 
     private array $subscriptions = [];
 
+    private AggregateRepository $aggregateRepository;
+
     public function __construct(
-        EventStore $eventStore,
-        Gateway $client
+        Gateway $gateway,
+        AggregateRepository $aggregateRepository
     ) {
-        $this->eventStore = $eventStore;
-        $this->gateway = $client;
+        $this->gateway = $gateway;
+        $this->aggregateRepository = $aggregateRepository;
     }
 
-    public function dispatch(object $event): void
+    public function dispatch(Event $event): void
     {
         if (! isset($event->uuid)) {
             $event->uuid = uuid();
@@ -30,19 +32,16 @@ class EventBus
         $this->gateway->event($event);
     }
 
-    public function handle(object $event): void
+    public function handle(Event $event): void
     {
-        $this->storeEvent($event);
-
         $this->notifySubscribers($event);
+
+        if ($event->meta()->aggregateUuid) {
+            $this->notifyAggregate($event);
+        }
     }
 
-    private function storeEvent(object $event): void
-    {
-        $this->eventStore->store($event);
-    }
-
-    private function notifySubscribers(object $event): void
+    private function notifySubscribers(Event $event): void
     {
         $eventClassName = get_class($event);
 
@@ -57,5 +56,15 @@ class EventBus
 
             $subscriber->$handler($event);
         }
+    }
+
+    private function notifyAggregate(Event $event): void
+    {
+        $aggregate = $this->aggregateRepository->resolve(
+            $event->meta()->aggregateClass,
+            $event->meta()->aggregateUuid,
+        );
+
+        $aggregate->apply($event);
     }
 }

@@ -3,7 +3,9 @@
 namespace Spatie\EventServer\Tests;
 
 use Carbon\Carbon;
+use Spatie\EventServer\Client\Gateway;
 use Spatie\EventServer\Container;
+use Spatie\EventServer\Server\Server;
 use Spatie\EventServer\Tests\Fakes\TestConfig;
 use Spatie\EventServer\Tests\Fakes\TestContainer;
 
@@ -13,6 +15,10 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
     protected TestConfig $config;
 
+    protected Server $server;
+
+    protected Gateway $gateway;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -20,10 +26,9 @@ class TestCase extends \PHPUnit\Framework\TestCase
         Carbon::setTestNow('2020-01-01 00:00:00');
 
         $this->config = new TestConfig();
-
         $this->container = TestContainer::init($this->config);
-
-        Container::fake($this->container);
+        $this->server = $this->container->server();
+        $this->gateway = $this->container->gateway();
 
         if (! is_dir($this->config->storagePath)) {
             mkdir($this->config->storagePath);

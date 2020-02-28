@@ -7,12 +7,12 @@ use Throwable;
 
 class SyncServer extends Server
 {
-    public function run(): void
+    public function startServer(): void
     {
         // Nothing needs to happen here
     }
 
-    public function handleRequestError(Throwable $throwable)
+    public function handleRequestError(Throwable $throwable): void
     {
         throw $throwable;
     }

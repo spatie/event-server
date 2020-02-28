@@ -2,12 +2,13 @@
 
 namespace Spatie\EventServer\Server;
 
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\EventLoop\LoopInterface;
 use React\Http\Server as HttpServer;
 use React\Socket\Server as SocketServer;
 use Spatie\EventServer\Console\Logger;
-use Spatie\EventServer\Container;
+use Spatie\EventServer\Server\Events\EventStore;
 use Throwable;
 
 class Server
@@ -24,17 +25,39 @@ class Server
 
     private SocketServer $socketServer;
 
+    private EventStore $eventStore;
+
     public function __construct(
         LoopInterface $loop,
         Router $router,
-        Logger $logger
+        Logger $logger,
+        EventStore $eventStore
     ) {
         $this->loop = $loop;
         $this->router = $router;
         $this->logger = $logger;
+        $this->eventStore = $eventStore;
     }
 
     public function run(): void
+    {
+        $this->replayEvents();
+
+        $this->startServer();
+    }
+
+    protected function replayEvents(): void
+    {
+        $logger = $this->logger->prefix('replay');
+
+        $logger->comment('Starting');
+
+        $this->eventStore->replay();
+
+        $logger->info('Done');
+    }
+
+    protected function startServer(): void
     {
         $this->httpServer = new HttpServer([$this, 'receive']);
 
@@ -42,15 +65,15 @@ class Server
 
         $this->httpServer->listen($this->socketServer);
 
-        $this->logger->info('Listening at http://' . self::URL);
+        $this->logger->prefix('server')->info('Listening at http://' . self::URL);
 
         $this->loop->run();
     }
 
-    public function receive(ServerRequestInterface $request)
+    public function receive(ServerRequestInterface $request): ResponseInterface
     {
         try {
-            $this->logger->comment("Received request {$request->getUri()}");
+            $this->logger->prefix($request->getMethod())->comment($request->getUri());
 
             return $this->router->dispatch($request);
         } catch (Throwable $throwable) {
@@ -58,14 +81,16 @@ class Server
         }
     }
 
-    public function handleRequestError(Throwable $throwable)
+    public function handleRequestError(Throwable $throwable): void
     {
         $this->logger->error($throwable->getMessage());
     }
 
     public function __destruct()
     {
-        $this->loop->stop();
+        if (isset($this->loop)) {
+            $this->loop->stop();
+        }
 
         if (isset($this->socketServer)) {
             $this->socketServer->close();

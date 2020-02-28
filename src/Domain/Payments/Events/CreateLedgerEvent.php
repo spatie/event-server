@@ -2,7 +2,9 @@
 
 namespace Spatie\EventServer\Domain\Payments\Events;
 
-class CreateLedgerEvent
+use Spatie\EventServer\Domain\Event;
+
+class CreateLedgerEvent extends Event
 {
     public string $uuid;
 

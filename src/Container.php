@@ -14,9 +14,11 @@ use Spatie\EventServer\Console\Commands\ClientCommand;
 use Spatie\EventServer\Console\Commands\ServerCommand;
 use Spatie\EventServer\Console\ConsoleApplication;
 use Spatie\EventServer\Console\Logger;
+use Spatie\EventServer\Domain\AggregateRepository;
 use Spatie\EventServer\Server\Events\EventBus;
 use Spatie\EventServer\Server\Events\EventStore;
-use Spatie\EventServer\Server\RequestHandlers\EventRequestHandler;
+use Spatie\EventServer\Server\RequestHandlers\GetAggregateHandler;
+use Spatie\EventServer\Server\RequestHandlers\TriggerEventHandler;
 use Spatie\EventServer\Server\Router;
 use Spatie\EventServer\Server\Server;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -50,11 +52,6 @@ class Container
         return static::$instance;
     }
 
-    public static function fake(Container $container): self
-    {
-        return static::$instance = $container;
-    }
-
     private function __construct(Config $config)
     {
         $this->config = $config;
@@ -73,21 +70,22 @@ class Container
         throw new Exception("No container definition found for {$class}");
     }
 
-    public function singleton(string $class, Closure $closure)
-    {
+    public function singleton(
+        string $class,
+        Closure $createInstance,
+        ?Closure $afterCreated = null
+    ) {
         if (! isset(static::$singletons[$class])) {
-            static::$singletons[$class] = $closure();
+            $instance = $createInstance();
+
+            static::$singletons[$class] = $instance;
+
+            if ($afterCreated) {
+                $afterCreated($instance);
+            }
         }
 
         return static::$singletons[$class];
-    }
-
-    public function eventBus(): EventBus
-    {
-        return $this->singleton(EventBus::class, fn() => new EventBus(
-            $this->eventStore(),
-            $this->gateway(),
-        ));
     }
 
     public function loop(): LoopInterface
@@ -101,6 +99,7 @@ class Container
             $this->loop(),
             $this->router(),
             $this->logger(),
+            $this->eventStore()
         ));
     }
 
@@ -130,7 +129,9 @@ class Container
             Dispatcher::class,
             function () {
                 return simpleDispatcher(function (RouteCollector $routeCollector) {
-                    $routeCollector->addRoute('POST', '/events', EventRequestHandler::class);
+                    foreach ($this->config->routes() as $route) {
+                        $routeCollector->addRoute(...$route);
+                    }
                 });
             }
         );
@@ -150,7 +151,7 @@ class Container
 
             $application->addCommands([
                 new ServerCommand($this->server()),
-                new ClientCommand(),
+                new ClientCommand($this->logger()),
             ]);
 
             return $application;
@@ -167,17 +168,42 @@ class Container
         return $this->singleton(OutputInterface::class, fn() => new ConsoleOutput());
     }
 
-    public function eventStore(): EventStore
+    public function eventBus(): EventBus
     {
-        return $this->singleton(EventStore::class, fn() => new EventStore(
-            $this->config->storagePath
+        return $this->singleton(EventBus::class, fn() => new EventBus(
+            $this->gateway(),
+            $this->aggregateRepository()
         ));
     }
 
-    public function eventRequestHandler(): EventRequestHandler
+    public function eventStore(): EventStore
     {
-        return $this->singleton(EventRequestHandler::class, fn() => new EventRequestHandler(
-            $this->eventBus()
+        return $this->singleton(
+            EventStore::class,
+            fn() => new EventStore(
+                $this->config->storagePath
+            ),
+            fn(EventStore $eventStore) => $eventStore->setEventBus($this->eventBus())
+        );
+    }
+
+    public function triggerEventHandler(): TriggerEventHandler
+    {
+        return $this->singleton(TriggerEventHandler::class, fn() => new TriggerEventHandler(
+            $this->eventBus(),
+            $this->eventStore()
         ));
+    }
+
+    public function getAggregateHandler(): GetAggregateHandler
+    {
+        return $this->singleton(GetAggregateHandler::class, fn() => new GetAggregateHandler(
+            $this->aggregateRepository()
+        ));
+    }
+
+    public function aggregateRepository(): AggregateRepository
+    {
+        return $this->singleton(AggregateRepository::class, fn() => new AggregateRepository());
     }
 }

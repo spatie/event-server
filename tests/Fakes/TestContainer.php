@@ -19,7 +19,8 @@ class TestContainer extends Container
         return new SyncServer(
             $this->loop(),
             $this->router(),
-            $this->logger()
+            $this->logger(),
+            $this->eventStore()
         );
     }
 

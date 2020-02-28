@@ -2,7 +2,9 @@
 
 namespace Spatie\EventServer\Domain\Payments\Events;
 
-class AddMoneyEvent
+use Spatie\EventServer\Domain\Event;
+
+class AddMoneyEvent extends Event
 {
     public int $amount;
 

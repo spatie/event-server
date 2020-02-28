@@ -1,6 +1,8 @@
 <?php
 
 use Ramsey\Uuid\Uuid;
+use Spatie\EventServer\Container;
+use Spatie\EventServer\Domain\Event;
 
 if (! function_exists('uuid')) {
     function uuid(): string
@@ -9,9 +11,11 @@ if (! function_exists('uuid')) {
     }
 }
 
-if (! function_exists('event')) {
-    function event(object $event)
+if (! function_exists('dispatch')) {
+    function dispatch(Event $event): void
     {
+        $eventBus = Container::make()->eventBus();
 
+        $eventBus->dispatch($event);
     }
 }
