@@ -1,15 +1,11 @@
 <?php
 
+use Spatie\EventServer\Config;
 use Spatie\EventServer\Container;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$container = new Container();
-
-$container->loop();
-$container->loop();
-$container->loop();
-$container->loop();
+$container = Container::init(new Config());
 
 $container
     ->consoleApplication()

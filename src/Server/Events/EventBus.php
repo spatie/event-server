@@ -3,25 +3,46 @@
 namespace Spatie\EventServer\Server\Events;
 
 use ReflectionClass;
-use Spatie\EventServer\Client\Client;
+use Spatie\EventServer\Client\Gateway;
 
 class EventBus
 {
+    private EventStore $eventStore;
+
+    private Gateway $gateway;
+
     private array $subscriptions = [];
 
-    private Client $client;
-
-    public function __construct(Client $client)
-    {
-        $this->client = $client;
+    public function __construct(
+        EventStore $eventStore,
+        Gateway $client
+    ) {
+        $this->eventStore = $eventStore;
+        $this->gateway = $client;
     }
 
-    public function trigger(object $event): void
+    public function dispatch(object $event): void
     {
-        $this->client->event($event);
+        if (! isset($event->uuid)) {
+            $event->uuid = uuid();
+        }
+
+        $this->gateway->event($event);
     }
 
-    public function handle(object $event)
+    public function handle(object $event): void
+    {
+        $this->storeEvent($event);
+
+        $this->notifySubscribers($event);
+    }
+
+    private function storeEvent(object $event): void
+    {
+        $this->eventStore->store($event);
+    }
+
+    private function notifySubscribers(object $event): void
     {
         $eventClassName = get_class($event);
 

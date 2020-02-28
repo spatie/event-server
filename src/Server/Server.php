@@ -7,6 +7,7 @@ use React\EventLoop\LoopInterface;
 use React\Http\Server as HttpServer;
 use React\Socket\Server as SocketServer;
 use Spatie\EventServer\Console\Logger;
+use Spatie\EventServer\Container;
 use Throwable;
 
 class Server
@@ -35,15 +36,7 @@ class Server
 
     public function run(): void
     {
-        $this->httpServer = new HttpServer(function (ServerRequestInterface $request) {
-            try {
-                $this->logger->comment("Received request {$request->getUri()}");
-
-                return $this->router->dispatch($request);
-            } catch (Throwable $throwable) {
-                $this->logger->error($throwable->getMessage());
-            }
-        });
+        $this->httpServer = new HttpServer([$this, 'receive']);
 
         $this->socketServer = new SocketServer(self::URL, $this->loop);
 
@@ -52,6 +45,22 @@ class Server
         $this->logger->info('Listening at http://' . self::URL);
 
         $this->loop->run();
+    }
+
+    public function receive(ServerRequestInterface $request)
+    {
+        try {
+            $this->logger->comment("Received request {$request->getUri()}");
+
+            return $this->router->dispatch($request);
+        } catch (Throwable $throwable) {
+            $this->handleRequestError($throwable);
+        }
+    }
+
+    public function handleRequestError(Throwable $throwable)
+    {
+        $this->logger->error($throwable->getMessage());
     }
 
     public function __destruct()

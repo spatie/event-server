@@ -3,16 +3,15 @@
 namespace Spatie\EventServer\Client;
 
 use Spatie\EventServer\Server\Server;
-use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class Client
+class Gateway
 {
     private HttpClientInterface $client;
 
-    public function __construct()
+    public function __construct(HttpClientInterface $client)
     {
-        $this->client = HttpClient::create();
+        $this->client = $client;
     }
 
     public function event(object $event): void
@@ -23,7 +22,7 @@ class Client
 
         $this->client->request(
             'POST',
-            $this->url('events'),
+            $this->uri('events'),
             [
                 'body' => [
                     'event' => serialize($event),
@@ -32,8 +31,8 @@ class Client
         );
     }
 
-    private function url(string $path): string
+    protected function uri(string $path): string
     {
-        return 'http://' . Server::URL . '/' . $path;
+        return 'http://' . rtrim(Server::URL, '/') . '/' . ltrim($path, '/');
     }
 }

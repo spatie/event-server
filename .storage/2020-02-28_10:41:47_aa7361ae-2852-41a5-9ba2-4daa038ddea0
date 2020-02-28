@@ -1,0 +1,1 @@
+O:60:"Spatie\EventServer\Domain\Payments\Events\SubtractMoneyEvent":2:{s:6:"amount";i:5;s:4:"uuid";s:36:"aa7361ae-2852-41a5-9ba2-4daa038ddea0";}

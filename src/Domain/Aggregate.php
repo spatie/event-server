@@ -23,7 +23,7 @@ abstract class Aggregate
     {
         $eventBus = Container::make()->eventBus();
 
-        $eventBus->trigger($event);
+        $eventBus->dispatch($event);
 
         $this->apply($event);
 
