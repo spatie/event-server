@@ -8,3 +8,10 @@ if (! function_exists('uuid')) {
         return (string) Uuid::uuid4();
     }
 }
+
+if (! function_exists('event')) {
+    function event(object $event)
+    {
+
+    }
+}

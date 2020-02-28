@@ -2,15 +2,12 @@
 
 namespace Spatie\EventServer\Domain\Payments\Events;
 
-class CreatePaymentEvent
+class SubtractMoneyEvent
 {
-    public string $uuid;
-
     public int $amount;
 
     public function __construct(int $amount)
     {
-        $this->uuid = uuid();
         $this->amount = $amount;
     }
 }
