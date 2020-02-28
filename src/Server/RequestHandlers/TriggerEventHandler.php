@@ -6,17 +6,17 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Response;
 use Spatie\EventServer\Server\Events\EventBus;
-use Spatie\EventServer\Server\Events\EventStore;
+use Spatie\EventServer\Server\Events\FileEventStore;
 
 class TriggerEventHandler implements RequestHandler
 {
     private EventBus $eventBus;
 
-    private EventStore $eventStore;
+    private FileEventStore $eventStore;
 
     public function __construct(
         EventBus $eventBus,
-        EventStore $eventStore
+        FileEventStore $eventStore
     ) {
         $this->eventBus = $eventBus;
         $this->eventStore = $eventStore;

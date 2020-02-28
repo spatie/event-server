@@ -8,7 +8,7 @@ use React\EventLoop\LoopInterface;
 use React\Http\Server as HttpServer;
 use React\Socket\Server as SocketServer;
 use Spatie\EventServer\Console\Logger;
-use Spatie\EventServer\Server\Events\EventStore;
+use Spatie\EventServer\Server\Events\FileEventStore;
 use Throwable;
 
 class Server
@@ -25,13 +25,13 @@ class Server
 
     private SocketServer $socketServer;
 
-    private EventStore $eventStore;
+    private FileEventStore $eventStore;
 
     public function __construct(
         LoopInterface $loop,
         Router $router,
         Logger $logger,
-        EventStore $eventStore
+        FileEventStore $eventStore
     ) {
         $this->loop = $loop;
         $this->router = $router;

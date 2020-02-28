@@ -17,6 +17,7 @@ use Spatie\EventServer\Console\Logger;
 use Spatie\EventServer\Domain\AggregateRepository;
 use Spatie\EventServer\Server\Events\EventBus;
 use Spatie\EventServer\Server\Events\EventStore;
+use Spatie\EventServer\Server\Events\FileEventStore;
 use Spatie\EventServer\Server\RequestHandlers\GetAggregateHandler;
 use Spatie\EventServer\Server\RequestHandlers\TriggerEventHandler;
 use Spatie\EventServer\Server\Router;
@@ -180,7 +181,7 @@ class Container
     {
         return $this->singleton(
             EventStore::class,
-            fn() => new EventStore(
+            fn() => new FileEventStore(
                 $this->config->storagePath
             ),
             fn(EventStore $eventStore) => $eventStore->setEventBus($this->eventBus())
