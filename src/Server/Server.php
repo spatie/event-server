@@ -21,14 +21,18 @@ class Server
 
     private EventStore $eventStore;
 
+    private string $listenUri;
+
     public function __construct(
         LoopInterface $loop,
         Logger $logger,
-        EventStore $eventStore
+        EventStore $eventStore,
+        string $listenUri
     ) {
         $this->loop = $loop;
         $this->logger = $logger;
         $this->eventStore = $eventStore;
+        $this->listenUri = $listenUri;
     }
 
     public function run(): void
@@ -51,7 +55,7 @@ class Server
 
     protected function startServer(): void
     {
-        $this->socketServer = new SocketServer(self::URL, $this->loop);
+        $this->socketServer = new SocketServer($this->listenUri, $this->loop);
 
         $this->socketServer->on('connection', function (ConnectionInterface $connection) {
             $connection->on('data', function (string $requestPayload) use ($connection) {

@@ -96,7 +96,8 @@ class Container
         return $this->singleton(Server::class, fn() => new Server(
             $this->loop(),
             $this->logger(),
-            $this->eventStore()
+            $this->eventStore(),
+            $this->config->listen,
         ));
     }
 
@@ -110,9 +111,9 @@ class Container
     public function socketClient(): SocketClient
     {
         return new SocketClient(
-            $this->config->listen,
             $this->loop(),
             $this->socketConnector(),
+            $this->config->listen,
         );
     }
 

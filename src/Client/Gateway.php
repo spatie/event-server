@@ -4,7 +4,6 @@ namespace Spatie\EventServer\Client;
 
 use Spatie\EventServer\Domain\Aggregate;
 use Spatie\EventServer\Domain\Event;
-use Spatie\EventServer\Domain\Payments\Ledger;
 use Spatie\EventServer\Server\Payload;
 use Spatie\EventServer\Server\RequestPayload;
 use Spatie\EventServer\Server\RequestHandlers\GetAggregateHandler;

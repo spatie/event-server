@@ -11,20 +11,20 @@ use Spatie\EventServer\Server\RequestPayload;
 
 class SocketClient
 {
-    private string $uri;
-
     private LoopInterface $loop;
 
     private Connector $connector;
 
+    private string $listenUri;
+
     public function __construct(
-        string $uri,
         LoopInterface $loop,
-        Connector $connector
+        Connector $connector,
+        string $listenUri
     ) {
-        $this->uri = $uri;
         $this->loop = $loop;
         $this->connector = $connector;
+        $this->listenUri = $listenUri;
     }
 
     public function send(RequestPayload $payload): Payload
@@ -32,7 +32,7 @@ class SocketClient
         $output = null;
 
         $this->connector
-            ->connect($this->uri)
+            ->connect($this->listenUri)
             ->then(function (ConnectionInterface $connection) use ($payload, &$output) {
                 $connection->on('data', function ($data) use (&$output) {
                     $output = $data;
