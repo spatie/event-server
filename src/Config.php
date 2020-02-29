@@ -6,8 +6,5 @@ class Config
 {
     public ?string $storagePath = __DIR__ . '/../.storage';
 
-    public function routes(): array
-    {
-        return (new Routes())->routes;
-    }
+    public string $listen = '127.0.0.1:8181';
 }

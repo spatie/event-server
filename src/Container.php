@@ -4,14 +4,15 @@ namespace Spatie\EventServer;
 
 use Closure;
 use Exception;
-use FastRoute\Dispatcher;
-use FastRoute\RouteCollector;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\EventLoop\LoopInterface;
+use React\Socket\Connector;
 use ReflectionClass;
 use Spatie\EventServer\Client\Gateway;
+use Spatie\EventServer\Client\SocketClient;
 use Spatie\EventServer\Console\Commands\ClientCommand;
 use Spatie\EventServer\Console\Commands\ServerCommand;
+use Spatie\EventServer\Console\Commands\SocketCommand;
 use Spatie\EventServer\Console\ConsoleApplication;
 use Spatie\EventServer\Console\Logger;
 use Spatie\EventServer\Domain\AggregateRepository;
@@ -20,15 +21,11 @@ use Spatie\EventServer\Server\Events\EventStore;
 use Spatie\EventServer\Server\Events\FileEventStore;
 use Spatie\EventServer\Server\RequestHandlers\GetAggregateHandler;
 use Spatie\EventServer\Server\RequestHandlers\TriggerEventHandler;
-use Spatie\EventServer\Server\Router;
 use Spatie\EventServer\Server\Server;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-use function FastRoute\simpleDispatcher;
 
 class Container
 {
@@ -98,7 +95,6 @@ class Container
     {
         return $this->singleton(Server::class, fn() => new Server(
             $this->loop(),
-            $this->router(),
             $this->logger(),
             $this->eventStore()
         ));
@@ -107,35 +103,22 @@ class Container
     public function gateway(): Gateway
     {
         return $this->singleton(Gateway::class, fn() => new Gateway(
-            $this->httpClient(),
+            $this->socketClient(),
         ));
     }
 
-    public function httpClient(): HttpClientInterface
+    public function socketClient(): SocketClient
     {
-        return $this->singleton(HttpClientInterface::class, fn() => HttpClient::create());
-    }
-
-    public function router(): Router
-    {
-        return $this->singleton(Router::class, fn() => new Router(
-            $this,
-            $this->dispatcher(),
-        ));
-    }
-
-    public function dispatcher(): Dispatcher
-    {
-        return $this->singleton(
-            Dispatcher::class,
-            function () {
-                return simpleDispatcher(function (RouteCollector $routeCollector) {
-                    foreach ($this->config->routes() as $route) {
-                        $routeCollector->addRoute(...$route);
-                    }
-                });
-            }
+        return new SocketClient(
+            $this->config->listen,
+            $this->loop(),
+            $this->socketConnector(),
         );
+    }
+
+    public function socketConnector(): Connector
+    {
+        return new Connector($this->loop());
     }
 
     public function logger(): Logger
@@ -153,6 +136,7 @@ class Container
             $application->addCommands([
                 new ServerCommand($this->server()),
                 new ClientCommand($this->logger()),
+                new SocketCommand($this->logger()),
             ]);
 
             return $application;

@@ -2,18 +2,19 @@
 
 namespace Spatie\EventServer\Client;
 
-use Psr\Http\Message\ResponseInterface;
-use React\Http\Response;
 use Spatie\EventServer\Domain\Aggregate;
 use Spatie\EventServer\Domain\Event;
-use Spatie\EventServer\Server\Server;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Spatie\EventServer\Domain\Payments\Ledger;
+use Spatie\EventServer\Server\Payload;
+use Spatie\EventServer\Server\RequestPayload;
+use Spatie\EventServer\Server\RequestHandlers\GetAggregateHandler;
+use Spatie\EventServer\Server\RequestHandlers\TriggerEventHandler;
 
 class Gateway
 {
-    private HttpClientInterface $client;
+    private SocketClient $client;
 
-    public function __construct(HttpClientInterface $client)
+    public function __construct(SocketClient $client)
     {
         $this->client = $client;
     }
@@ -24,36 +25,25 @@ class Gateway
             $event->uuid = uuid();
         }
 
-        $this->request('POST', $this->uri('events'), [
-            'event' => serialize($event),
+        $this->request(TriggerEventHandler::class, [
+            'event' => $event,
         ]);
     }
 
     public function getAggregate(string $aggregateClass, string $aggregateUuid): Aggregate
     {
-        $response = $this->request('GET', $this->uri('aggregate'), [
+        $payload = $this->request(GetAggregateHandler::class, [
             'aggregateClass' => $aggregateClass,
             'aggregateUuid' => $aggregateUuid,
         ]);
 
-        $response = json_decode((string) $response->getBody(), true);
-
-        return unserialize($response['aggregate']);
+        return unserialize($payload->get('aggregate'));
     }
 
-    protected function request(string $verb, string $uri, array $body): ResponseInterface
+    protected function request(string $handlerClass, array $data): Payload
     {
-        $symfonyResponse = $this->client->request($verb, $uri, ['body' => $body]);
+        $payload = RequestPayload::make($handlerClass, $data);
 
-        return (new Response(
-            $symfonyResponse->getStatusCode(),
-            $symfonyResponse->getHeaders(),
-            $symfonyResponse->getContent(false)
-        ));
-    }
-
-    protected function uri(string $path): string
-    {
-        return 'http://' . rtrim(Server::URL, '/') . '/' . ltrim($path, '/');
+        return $this->client->send($payload);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Spatie\EventServer\Tests\Fakes;
 
-use Psr\Http\Message\ResponseInterface;
-use React\Http\Io\ServerRequest;
 use Spatie\EventServer\Client\Gateway;
+use Spatie\EventServer\Server\Payload;
+use Spatie\EventServer\Server\RequestPayload;
 use Spatie\EventServer\Server\Server;
 
 class SyncGateway extends Gateway
@@ -16,10 +16,10 @@ class SyncGateway extends Gateway
         $this->server = $server;
     }
 
-    protected function request(string $verb, string $uri, array $body): ResponseInterface
+    protected function request(string $handlerClass, array $data): Payload
     {
-        $request = (new ServerRequest($verb, $uri))->withParsedBody($body);
+        $payload = RequestPayload::make($handlerClass, $data);
 
-        return $this->server->receive($request);
+        return $this->server->receive($payload);
     }
 }

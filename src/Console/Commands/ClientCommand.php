@@ -26,7 +26,7 @@ class ClientCommand extends Command
         /** @var Ledger $ledger */
         $ledger = Container::make()->gateway()->getAggregate(Ledger::class, '06720e24-1a5b-4fbc-9d8a-d5b3be931034');
 
-//        $ledger->add(100);
+        $ledger->add(100);
 
         $this->logger->info($ledger->balance);
 

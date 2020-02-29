@@ -2,11 +2,9 @@
 
 namespace Spatie\EventServer\Server\RequestHandlers;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use React\Http\Response;
 use Spatie\EventServer\Domain\AggregateRepository;
-use function RingCentral\Psr7\stream_for;
+use Spatie\EventServer\Server\Payload;
+use Spatie\EventServer\Server\RequestPayload;
 
 class GetAggregateHandler implements RequestHandler
 {
@@ -17,14 +15,15 @@ class GetAggregateHandler implements RequestHandler
         $this->repository = $repository;
     }
 
-    public function __invoke(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(RequestPayload $payload): Payload
     {
-        $body = $request->getParsedBody();
+        $aggregate = $this->repository->resolve(
+            $payload->get('aggregateClass'),
+            $payload->get('aggregateUuid')
+        );
 
-        $aggregate = $this->repository->resolve($body['aggregateClass'], $body['aggregateUuid']);
-
-        return new Response(200, [], stream_for(json_encode([
+        return new Payload([
             'aggregate' => serialize($aggregate),
-        ])));
+        ]);
     }
 }

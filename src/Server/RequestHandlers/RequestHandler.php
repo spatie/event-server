@@ -2,10 +2,10 @@
 
 namespace Spatie\EventServer\Server\RequestHandlers;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Spatie\EventServer\Server\Payload;
+use Spatie\EventServer\Server\RequestPayload;
 
 interface RequestHandler
 {
-    public function __invoke(ServerRequestInterface $request): ResponseInterface;
+    public function __invoke(RequestPayload $payload): Payload;
 }

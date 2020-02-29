@@ -2,13 +2,11 @@
 
 namespace Spatie\EventServer\Server;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use React\EventLoop\LoopInterface;
-use React\Http\Server as HttpServer;
+use React\Socket\ConnectionInterface;
 use React\Socket\Server as SocketServer;
 use Spatie\EventServer\Console\Logger;
-use Spatie\EventServer\Server\Events\FileEventStore;
+use Spatie\EventServer\Server\Events\EventStore;
 use Throwable;
 
 class Server
@@ -17,24 +15,18 @@ class Server
 
     private LoopInterface $loop;
 
-    private Router $router;
-
     private Logger $logger;
-
-    private HttpServer $httpServer;
 
     private SocketServer $socketServer;
 
-    private FileEventStore $eventStore;
+    private EventStore $eventStore;
 
     public function __construct(
         LoopInterface $loop,
-        Router $router,
         Logger $logger,
-        FileEventStore $eventStore
+        EventStore $eventStore
     ) {
         $this->loop = $loop;
-        $this->router = $router;
         $this->logger = $logger;
         $this->eventStore = $eventStore;
     }
@@ -59,23 +51,31 @@ class Server
 
     protected function startServer(): void
     {
-        $this->httpServer = new HttpServer([$this, 'receive']);
-
         $this->socketServer = new SocketServer(self::URL, $this->loop);
 
-        $this->httpServer->listen($this->socketServer);
+        $this->socketServer->on('connection', function (ConnectionInterface $connection) {
+            $connection->on('data', function (string $requestPayload) use ($connection) {
+                $requestPayload = RequestPayload::unserialize($requestPayload);
 
-        $this->logger->prefix('server')->info('Listening at http://' . self::URL);
+                $response = $this->receive($requestPayload);
+
+                $connection->write($response->serialize());
+
+                $connection->end();
+            });
+        });
+
+        $this->logger->prefix('server')->info("Listening at {$this->socketServer->getAddress()}");
 
         $this->loop->run();
     }
 
-    public function receive(ServerRequestInterface $request): ResponseInterface
+    public function receive(RequestPayload $requestPayload): Payload
     {
         try {
-            $this->logger->prefix($request->getMethod())->comment($request->getUri());
+            $this->logger->comment("Received payload for {$requestPayload->handlerClass}");
 
-            return $this->router->dispatch($request);
+            return $requestPayload->resolveHandler()($requestPayload);
         } catch (Throwable $throwable) {
             $this->handleRequestError($throwable);
         }
