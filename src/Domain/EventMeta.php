@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\EventServer;
+namespace Spatie\EventServer\Domain;
 
 class EventMeta
 {

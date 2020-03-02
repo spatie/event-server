@@ -36,7 +36,7 @@ class FileEventStore extends EventStore
         foreach ($files as $file) {
             $event = unserialize(file_get_contents($file));
 
-            $this->eventBus->handle($event);
+            $this->eventBus->handle($event, true);
         }
     }
 

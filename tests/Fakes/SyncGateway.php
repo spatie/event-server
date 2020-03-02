@@ -20,6 +20,6 @@ class SyncGateway extends Gateway
     {
         $payload = RequestPayload::make($handlerClass, $data);
 
-        return $this->server->receive($payload);
+        return $this->server->handleRequest($payload);
     }
 }

@@ -2,25 +2,28 @@
 
 namespace Spatie\EventServer\Server\Events;
 
-use ReflectionClass;
 use Spatie\EventServer\Client\Gateway;
 use Spatie\EventServer\Domain\AggregateRepository;
 use Spatie\EventServer\Domain\Event;
+use Spatie\EventServer\Domain\Reactor;
+use Spatie\EventServer\Domain\Subscribers;
 
 class EventBus
 {
     private Gateway $gateway;
 
-    private array $subscriptions = [];
-
     private AggregateRepository $aggregateRepository;
+
+    private Subscribers $subscribers;
 
     public function __construct(
         Gateway $gateway,
-        AggregateRepository $aggregateRepository
+        AggregateRepository $aggregateRepository,
+        Subscribers $subscribers
     ) {
         $this->gateway = $gateway;
         $this->aggregateRepository = $aggregateRepository;
+        $this->subscribers = $subscribers;
     }
 
     public function dispatch(Event $event): void
@@ -32,29 +35,27 @@ class EventBus
         $this->gateway->event($event);
     }
 
-    public function handle(Event $event): void
+    public function handle(Event $event, bool $replay = false): void
     {
-        $this->notifySubscribers($event);
+        $this->notifySubscribers($event, $replay);
 
         if ($event->meta()->aggregateUuid) {
             $this->notifyAggregate($event);
         }
     }
 
-    private function notifySubscribers(Event $event): void
+    private function notifySubscribers(Event $event, bool $replay = false): void
     {
-        $eventClassName = get_class($event);
-
-        $eventName = (new ReflectionClass($event))->getShortName();
-
-        foreach (($this->subscriptions[$eventClassName] ?? []) as $subscriber) {
-            $handler = "on{$eventName}";
-
-            if (! method_exists($subscriber, $handler)) {
+        foreach ($this->subscribers as $subscriber) {
+            if ($replay && $subscriber instanceof Reactor) {
                 continue;
             }
 
-            $subscriber->$handler($event);
+            if (! $subscriber->subscribesTo($event)) {
+                continue;
+            }
+
+            $subscriber->handle($event);
         }
     }
 
@@ -62,7 +63,7 @@ class EventBus
     {
         $aggregate = $this->aggregateRepository->resolve(
             $event->meta()->aggregateClass,
-            $event->meta()->aggregateUuid,
+            $event->meta()->aggregateUuid
         );
 
         $aggregate->apply($event);

@@ -3,7 +3,7 @@
 namespace Spatie\EventServer\Domain;
 
 use ReflectionClass;
-use Spatie\EventServer\EventMeta;
+use Spatie\EventServer\Domain\EventMeta;
 
 abstract class Event
 {

@@ -4,7 +4,7 @@ namespace Spatie\EventServer\Tests;
 
 use Carbon\Carbon;
 use Spatie\EventServer\Client\Gateway;
-use Spatie\EventServer\Container;
+use Spatie\EventServer\Domain\Event;
 use Spatie\EventServer\Server\Server;
 use Spatie\EventServer\Tests\Fakes\TestConfig;
 use Spatie\EventServer\Tests\Fakes\TestContainer;
@@ -70,7 +70,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
         );
     }
 
-    protected function storeEvents(object ...$events)
+    protected function storeEvents(Event ...$events)
     {
         $eventStore = $this->container->eventStore();
 

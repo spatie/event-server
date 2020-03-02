@@ -61,7 +61,7 @@ class Server
             $connection->on('data', function (string $requestPayload) use ($connection) {
                 $requestPayload = RequestPayload::unserialize($requestPayload);
 
-                $response = $this->receive($requestPayload);
+                $response = $this->handleRequest($requestPayload);
 
                 $connection->write($response->serialize());
 
@@ -74,7 +74,7 @@ class Server
         $this->loop->run();
     }
 
-    public function receive(RequestPayload $requestPayload): Payload
+    public function handleRequest(RequestPayload $requestPayload): Payload
     {
         try {
             $this->logger->comment("Received payload for {$requestPayload->handlerClass}");

@@ -16,6 +16,7 @@ use Spatie\EventServer\Console\Commands\SocketCommand;
 use Spatie\EventServer\Console\ConsoleApplication;
 use Spatie\EventServer\Console\Logger;
 use Spatie\EventServer\Domain\AggregateRepository;
+use Spatie\EventServer\Domain\Subscribers;
 use Spatie\EventServer\Server\Events\EventBus;
 use Spatie\EventServer\Server\Events\EventStore;
 use Spatie\EventServer\Server\Events\FileEventStore;
@@ -33,7 +34,7 @@ class Container
 
     private static array $singletons = [];
 
-    private Config $config;
+    protected Config $config;
 
     /**
      * @param \Spatie\EventServer\Config $config
@@ -89,6 +90,13 @@ class Container
     public function loop(): LoopInterface
     {
         return $this->singleton(LoopInterface::class, fn() => EventLoopFactory::create());
+    }
+
+    public function subscribers(): Subscribers
+    {
+        return $this->singleton(Subscribers::class, fn () => new Subscribers(
+            $this->config->subscribers(),
+        ));
     }
 
     public function server(): Server
@@ -158,7 +166,8 @@ class Container
     {
         return $this->singleton(EventBus::class, fn() => new EventBus(
             $this->gateway(),
-            $this->aggregateRepository()
+            $this->aggregateRepository(),
+            $this->subscribers(),
         ));
     }
 
