@@ -2,6 +2,8 @@
 
 namespace Spatie\EventServer\Domain;
 
+use Spatie\EventServer\Container;
+
 abstract class Aggregate
 {
     public string $uuid;
@@ -19,6 +21,16 @@ abstract class Aggregate
     public function __construct(?string $uuid = null)
     {
         $this->uuid = $uuid ?? uuid();
+    }
+
+    /**
+     * @param string $uuid
+     *
+     * @return \Spatie\EventServer\Domain\Aggregate|static
+     */
+    public static function find(string $uuid): Aggregate
+    {
+        return Container::make()->gateway()->getAggregate(static::class, $uuid);
     }
 
     protected function event(Event $event): self
