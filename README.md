@@ -1,4 +1,4 @@
-# Very short description of the package
+# Event server
 
 This is an experimental package, do not use in production! A more in-depth explanation is coming soon.
 
@@ -10,11 +10,7 @@ We highly appreciate you sending us a postcard from your hometown, mentioning wh
 
 ## Installation
 
-You can install the package via composer:
-
-```bash
-composer require spatie/php-event-server
-```
+Don't install this yet!
 
 ## Usage
 
@@ -24,13 +20,15 @@ The goal of this package is to have a long-running PHP process with the whole ap
 
 On the one hand there's a server (`php console.php server`), which will build its state from stored events on startup. After it's booted, the server is accessible via socket connections for PHP clients to work with.
 
+In the current test suite, these clients are simple PHP scripts, though they could very well be a Laravel or Symfony application.
+
 Events are sent from these PHP clients to the server, which will store and apply them. Furthermore, the clients can request parts of the server's state via a gateway. This server-client communication is best shown with an example:
 
 ```php
 // The server is run in the background, all previously stored events are loaded into memory
 $server->run();
 
-// A client can make a new aggregate and apply events on it
+// A client can make a new aggregate and apply events on it, these events are sent to the server
 $aggregate = new TestAggregate();
 $aggregate->increase(10);
 
