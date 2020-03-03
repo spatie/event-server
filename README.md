@@ -42,7 +42,16 @@ There's also support for projections and reactors (process managers). But the se
 - Snapshot support: which is essential to speed up server startup performance
 - Proper data store support: if you, for example, want to do complex queries on aggregates
 - Versioning support: allowing code changes to events, aggregates and what not
+- Maybe GraphQL is a viable approach to sync data between the event server and its clients
 - …
+
+## Potential benefits
+
+The application state is always loaded in memory, which means that there's much less overhead compared to using a normal data store and an ORM. Performance problems like eager loading issues and cyclic relations simply don't exist.
+
+Furthermore, it has the potential to significantly improve the performance of PHP clients, since they become relatively "dumb", they only need to execute simple controller code, do some request validation, etc.
+
+This architecture also promotes a clear boundary between application- and domain code, both can be separately worked on and tested.
 
 ## Testing
 
