@@ -2,7 +2,7 @@
 
 namespace Spatie\EventServer\Tests\Domain;
 
-use Spatie\EventServer\Domain\Payments\Ledger;
+use Spatie\EventServer\Tests\Fakes\TestAggregate;
 use Spatie\EventServer\Tests\TestCase;
 
 class AggregateTest extends TestCase
@@ -10,9 +10,9 @@ class AggregateTest extends TestCase
     /** @test */
     public function test()
     {
-        $ledger = Ledger::create(10)
-            ->add(10)
-            ->subtract(5);
+        $ledger = (new TestAggregate())
+            ->increase(10)
+            ->increase(5);
 
         $this->assertEquals(15, $ledger->balance);
     }

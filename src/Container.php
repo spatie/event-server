@@ -105,7 +105,7 @@ class Container
             $this->loop(),
             $this->logger(),
             $this->eventStore(),
-            $this->config->listen,
+            $this->config->listenUri,
         ));
     }
 
@@ -121,7 +121,7 @@ class Container
         return new SocketClient(
             $this->loop(),
             $this->socketConnector(),
-            $this->config->listen,
+            $this->config->listenUri,
         );
     }
 

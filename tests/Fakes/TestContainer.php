@@ -20,7 +20,7 @@ class TestContainer extends Container
             $this->loop(),
             $this->logger(),
             $this->eventStore(),
-            $this->config->listen
+            $this->config->listenUri
         );
     }
 

@@ -8,9 +8,11 @@ class TestAggregate extends Aggregate
 {
     public int $balance = 0;
 
-    public function increase(int $amount)
+    public function increase(int $amount): self
     {
         $this->event(new IncreaseBalanceEvent($amount));
+
+        return $this;
     }
 
     public function onIncreaseBalanceEvent(IncreaseBalanceEvent $event)
