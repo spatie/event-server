@@ -64,8 +64,7 @@ class EventServerTest extends TestCase
 
         $gateway = Container::make()->gateway();
 
-        /** @var \Spatie\EventServer\Tests\Fakes\TestAggregate $aggregate */
-        $aggregate = $gateway->getAggregate(TestAggregate::class, $uuid);
+        $aggregate = TestAggregate::find($uuid);
 
         $this->assertEquals(10, $aggregate->balance);
 

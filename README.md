@@ -1,12 +1,6 @@
 # Very short description of the package
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/php-event-server.svg?style=flat-square)](https://packagist.org/packages/spatie/:package_name)
-[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/spatie/php-event-server/run-tests?label=tests)](https://github.com/spatie/:package_name/actions?query=workflow%3Arun-tests+branch%3Amaster)
-[![Quality Score](https://img.shields.io/scrutinizer/g/spatie/php-event-server.svg?style=flat-square)](https://scrutinizer-ci.com/g/spatie/:package_name)
-[![Total Downloads](https://img.shields.io/packagist/dt/spatie/php-event-server.svg?style=flat-square)](https://packagist.org/packages/spatie/:package_name)
-
-
-This is where your description should go. Try and limit it to a paragraph or two. Consider adding a small example.
+This is an experimental package, do not use in production! A more in-depth explanation is coming soon.
 
 ## Support us
 
@@ -24,10 +18,33 @@ composer require spatie/php-event-server
 
 ## Usage
 
-``` php
-$skeleton = new Spatie\Skeleton();
-echo $skeleton->echoPhrase('Hello, Spatie!');
+The goal of this package is to have a long-running PHP process with the whole application state in memory. This means you don't need a database or ORM. The application state is built from events stored on the server, hence the whole application is event sourced.
+
+### Architecture
+
+On the one hand there's a server (`php console.php server`), which will build its state from stored events on startup. After it's booted, the server is accessible via socket connections for PHP clients to work with.
+
+Events are sent from these PHP clients to the server, which will store and apply them. Furthermore, the clients can request parts of the server's state via a gateway. This server-client communication is best shown with an example:
+
+```php
+// The server is run in the background, all previously stored events are loaded into memory
+$server->run();
+
+// A client can make a new aggregate and apply events on it
+$aggregate = new TestAggregate();
+$aggregate->increase(10);
+
+// When a new request comes in, this aggregate can be resolved from the event server
+$aggregate = TestAggregate::find($uuid);
 ```
+
+There's also support for projections and reactors (process managers). But the setup is far from complete. Here's a non-definitive list of what's missing:
+
+- Resolving projections from the server
+- Snapshot support: which is essential to speed up server startup performance
+- Proper data store support: if you, for example, want to do complex queries on aggregates
+- Versioning support: allowing code changes to events, aggregates and what not
+- …
 
 ## Testing
 
