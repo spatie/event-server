@@ -62,8 +62,6 @@ class EventServerTest extends TestCase
 
         $aggregate->increase(10);
 
-        $gateway = Container::make()->gateway();
-
         $aggregate = TestAggregate::find($uuid);
 
         $this->assertEquals(10, $aggregate->balance);
@@ -72,7 +70,7 @@ class EventServerTest extends TestCase
 
         $process->run();
 
-        $aggregate = $gateway->getAggregate(TestAggregate::class, $uuid);
+        $aggregate = TestAggregate::find($uuid);
 
         $this->assertEquals(10, $aggregate->balance);
     }
