@@ -26,6 +26,10 @@ class FileEventStore extends EventStore
             Carbon::now()->format('Y-m-d_H:i:s') . '_' . ($event->uuid ?? uuid()),
         ]);
 
+        if (! is_dir($this->storagePath)) {
+            mkdir($this->storagePath);
+        }
+
         file_put_contents($fileName, serialize($event));
     }
 
