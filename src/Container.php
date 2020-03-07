@@ -20,7 +20,11 @@ use Spatie\EventServer\Domain\Subscribers;
 use Spatie\EventServer\Server\Events\EventBus;
 use Spatie\EventServer\Server\Events\EventStore;
 use Spatie\EventServer\Server\Events\FileEventStore;
+use Spatie\EventServer\Server\RequestHandlers\Entities\CreateEntityHandler;
+use Spatie\EventServer\Server\RequestHandlers\Entities\DeleteEntityHandler;
+use Spatie\EventServer\Server\RequestHandlers\Entities\FindEntityHandler;
 use Spatie\EventServer\Server\RequestHandlers\GetAggregateHandler;
+use Spatie\EventServer\Server\RequestHandlers\Entities\ListEntitiesHandler;
 use Spatie\EventServer\Server\RequestHandlers\TriggerEventHandler;
 use Spatie\EventServer\Server\Server;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -34,7 +38,14 @@ class Container
 
     private static array $singletons = [];
 
+    public static bool $isServer = false;
+
     protected Config $config;
+
+    public static function isServer(): bool
+    {
+        return static::$isServer;
+    }
 
     /**
      * @param \Spatie\EventServer\Config $config
@@ -195,6 +206,26 @@ class Container
         return $this->singleton(GetAggregateHandler::class, fn() => new GetAggregateHandler(
             $this->aggregateRepository()
         ));
+    }
+
+    public function listEntitiesHandler(): ListEntitiesHandler
+    {
+        return $this->singleton(ListEntitiesHandler::class, fn() => new ListEntitiesHandler());
+    }
+
+    public function findEntityHandler(): FindEntityHandler
+    {
+        return $this->singleton(FindEntityHandler::class, fn() => new FindEntityHandler());
+    }
+
+    public function createEntityHandler(): CreateEntityHandler
+    {
+        return $this->singleton(CreateEntityHandler::class, fn() => new CreateEntityHandler());
+    }
+
+    public function deleteEntityHandler(): DeleteEntityHandler
+    {
+        return $this->singleton(DeleteEntityHandler::class, fn() => new DeleteEntityHandler());
     }
 
     public function aggregateRepository(): AggregateRepository

@@ -6,6 +6,7 @@ use React\EventLoop\LoopInterface;
 use React\Socket\ConnectionInterface;
 use React\Socket\Server as SocketServer;
 use Spatie\EventServer\Console\Logger;
+use Spatie\EventServer\Container;
 use Spatie\EventServer\Server\Events\EventStore;
 use Throwable;
 
@@ -37,6 +38,8 @@ class Server
 
     public function run(): void
     {
+        Container::$isServer = true;
+
         $this->replayEvents();
 
         $this->startServer();
@@ -77,7 +80,7 @@ class Server
     public function handleRequest(RequestPayload $requestPayload): Payload
     {
         try {
-            $this->logger->comment("Received payload for {$requestPayload->handlerClass}");
+            $this->logger->prefix('request')->comment($requestPayload->handlerClass);
 
             return $requestPayload->resolveHandler()($requestPayload);
         } catch (Throwable $throwable) {

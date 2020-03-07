@@ -3,8 +3,13 @@
 namespace Spatie\EventServer\Client;
 
 use Spatie\EventServer\Domain\Aggregate;
+use Spatie\EventServer\Domain\Entity;
 use Spatie\EventServer\Domain\Event;
 use Spatie\EventServer\Server\Payload;
+use Spatie\EventServer\Server\RequestHandlers\Entities\CreateEntityHandler;
+use Spatie\EventServer\Server\RequestHandlers\Entities\DeleteEntityHandler;
+use Spatie\EventServer\Server\RequestHandlers\Entities\FindEntityHandler;
+use Spatie\EventServer\Server\RequestHandlers\Entities\ListEntitiesHandler;
 use Spatie\EventServer\Server\RequestPayload;
 use Spatie\EventServer\Server\RequestHandlers\GetAggregateHandler;
 use Spatie\EventServer\Server\RequestHandlers\TriggerEventHandler;
@@ -26,6 +31,39 @@ class Gateway
 
         $this->request(TriggerEventHandler::class, [
             'event' => $event,
+        ]);
+    }
+
+    public function listEntities(string $entityClass): array
+    {
+        $payload = $this->request(ListEntitiesHandler::class, [
+            'entityClass' => $entityClass,
+        ]);
+
+        return $payload->get('entities');
+    }
+
+    public function findEntity(string $entityClass, string $uuid): Entity
+    {
+        $payload = $this->request(FindEntityHandler::class, [
+            'entityClass' => $entityClass,
+            'uuid' => $uuid,
+        ]);
+
+        return $payload->get('entity');
+    }
+
+    public function createEntity(Entity $entity): void
+    {
+        $this->request(CreateEntityHandler::class, [
+            'entity' => $entity,
+        ]);
+    }
+
+    public function deleteEntity(Entity $entity): void
+    {
+        $this->request(DeleteEntityHandler::class, [
+            'entity' => $entity,
         ]);
     }
 

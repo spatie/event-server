@@ -8,6 +8,9 @@ class Config
 
     public string $listenUri = '127.0.0.1:8181';
 
+    /**
+     * @return array|\Spatie\EventServer\Domain\Subscriber[]
+     */
     public function subscribers(): array
     {
         return [];

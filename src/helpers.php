@@ -19,3 +19,14 @@ if (! function_exists('dispatch')) {
         $eventBus->dispatch($event);
     }
 }
+
+if (! function_exists('runOn')) {
+    function runOn(Closure $server, Closure $client)
+    {
+        if (Container::isServer()) {
+            return $server();
+        }
+
+        return $client(Container::make()->gateway());
+    }
+}

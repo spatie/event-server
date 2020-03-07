@@ -32,7 +32,8 @@
     },
     "autoload" : {
         "psr-4" : {
-            "Spatie\\EventServer\\" : "src"
+            "Spatie\\EventServer\\" : "src",
+            "App\\" : "app"
         },
         "files" : [
             "src/helpers.php"

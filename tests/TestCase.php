@@ -4,6 +4,7 @@ namespace Spatie\EventServer\Tests;
 
 use Carbon\Carbon;
 use Spatie\EventServer\Client\Gateway;
+use Spatie\EventServer\Domain\EntityRepository;
 use Spatie\EventServer\Domain\Event;
 use Spatie\EventServer\Server\Server;
 use Spatie\EventServer\Tests\Fakes\TestConfig;
@@ -33,6 +34,8 @@ class TestCase extends \PHPUnit\Framework\TestCase
         if (! is_dir($this->config->storagePath)) {
             mkdir($this->config->storagePath);
         }
+
+        EntityRepository::clear();
     }
 
     protected function tearDown(): void
