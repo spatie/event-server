@@ -6,7 +6,6 @@ use App\Console\BalanceAddCommand;
 use App\Console\BalanceSubtractCommand;
 use App\Console\CreateAccountCommand;
 use App\Console\ListAccountsCommand;
-use App\Domain\Account\Entities\AccountRepository;
 use App\Domain\Account\Projections\AccountProjection;
 use App\Domain\Account\Reactors\OfferLoanReactor;
 use Spatie\EventServer\Console\ConsoleApplication;

@@ -67,9 +67,9 @@ class Container
         $this->config = $config;
     }
 
-    public function resolve(string $class): object
+    public function resolve(string $fqcn): object
     {
-        $className = (new ReflectionClass($class))->getShortName();
+        $className = (new ReflectionClass($fqcn))->getShortName();
 
         $resolverMethod = lcfirst($className);
 
@@ -77,7 +77,38 @@ class Container
             return $this->$resolverMethod();
         }
 
-        throw new Exception("No container definition found for {$class}");
+        $autowire = $this->autowire($fqcn);
+
+        if ($autowire) {
+            return $autowire;
+        }
+
+        throw new Exception("No container definition found for {$className}");
+    }
+
+    protected function autowire(string $fqcn): ?object
+    {
+        $reflectionClass = new ReflectionClass($fqcn);
+
+        if (!$reflectionClass->hasMethod('__construct')) {
+            return new $fqcn;
+        }
+
+        $reflectionConstructor = $reflectionClass->getMethod('__construct');
+
+        $arguments = [];
+
+        foreach ($reflectionConstructor->getParameters() as $reflectionParameter) {
+            $parameterType = $reflectionParameter->getType();
+
+            if (! $parameterType) {
+                throw new Exception("Could not autowire property {$reflectionParameter->getName()} in class {$reflectionClass->getName()}, its type is missing");
+            }
+
+            $arguments[] = $this->autowire($parameterType->getName());
+        }
+
+        return new $fqcn(...$arguments);
     }
 
     public function singleton(
