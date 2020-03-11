@@ -40,7 +40,7 @@ class EntityRepository
     {
         return runOn(
             $server = function () {
-                return array_values(static::$entities[$this->entityClass]);
+                return array_values(static::$entities[$this->entityClass] ?? []);
             },
             $client = function (Gateway $gateway) {
                 return $gateway->listEntities($this->entityClass);
@@ -52,7 +52,13 @@ class EntityRepository
     {
         return runOn(
             $server = function () use ($uuid) {
-                return static::$entities[$this->entityClass][$uuid];
+                $entity = static::$entities[$this->entityClass][$uuid] ?? null;
+
+                if (!$entity) {
+                    throw new Exception("{$this->entityClass} with id {$uuid} not found");
+                }
+
+                return $entity;
             },
             $client = function (Gateway $gateway) use ($uuid) {
                 return $gateway->findEntity($this->entityClass, $uuid);

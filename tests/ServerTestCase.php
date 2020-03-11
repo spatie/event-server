@@ -2,7 +2,7 @@
 
 namespace Spatie\EventServer\Tests;
 
-use Spatie\EventServer\Container;
+use App\Container;
 use Symfony\Component\Process\Process;
 
 abstract class ServerTestCase extends TestCase

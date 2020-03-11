@@ -36,18 +36,30 @@ class Logger
         return $clone;
     }
 
-    public function error(string $line): void
+    public function error(string ...$lines): self
     {
-        $this->log("<error>{$line}</error>");
+        foreach ($lines as $line) {
+            $this->log("<error>{$line}</error>");
+        }
+
+        return $this;
     }
 
-    public function info(string $line): void
+    public function info(string ...$lines): self
     {
-        $this->log("<info>{$line}</info>");
+        foreach ($lines as $line) {
+            $this->log("<info>{$line}</info>");
+        }
+
+        return $this;
     }
 
-    public function comment(string $line): void
+    public function comment(string ...$lines): self
     {
-        $this->log("<comment>{$line}</comment>");
+        foreach ($lines as $line) {
+            $this->log("<comment>{$line}</comment>");
+        }
+
+        return $this;
     }
 }

@@ -2,6 +2,9 @@
 
 namespace Spatie\EventServer\Tests;
 
+use App\Domain\Account\AccountAggregateRoot;
+use App\Domain\Account\Entities\Account;
+use Exception;
 use Spatie\EventServer\Tests\Fakes\TestAggregate;
 
 class RealServerTest extends ServerTestCase
@@ -30,5 +33,39 @@ class RealServerTest extends ServerTestCase
         $this->assertEquals(10, $aggregate->balance);
 
         $server->stop();
+    }
+
+    /** @test */
+    public function app_test()
+    {
+        $this->startServer(true);
+
+        $aggregateRoot = AccountAggregateRoot::new()->createAccount('Brent', uuid());
+
+        $aggregateRoot->addMoney(100);
+        $aggregateRoot->addMoney(100);
+        $aggregateRoot->addMoney(100);
+
+        $account = Account::find($aggregateRoot->uuid);
+
+        $this->assertEquals(300, $account->balance);
+
+        try {
+            $aggregateRoot->subtractMoney(5000);
+        } catch (Exception $exception) {
+            // do nothing
+        }
+
+        try {
+            $aggregateRoot->subtractMoney(5000);
+        } catch (Exception $exception) {
+            // do nothing
+        }
+
+        try {
+            $aggregateRoot->subtractMoney(5000);
+        } catch (Exception $exception) {
+            // do nothing
+        }
     }
 }

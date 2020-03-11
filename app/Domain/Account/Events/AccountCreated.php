@@ -8,9 +8,9 @@ final class AccountCreated extends Event
 {
     public string $name;
 
-    public int $userId;
+    public string $userId;
 
-    public function __construct(string $name, int $userId)
+    public function __construct(string $name, string $userId)
     {
         $this->name = $name;
 

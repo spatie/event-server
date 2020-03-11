@@ -15,7 +15,7 @@ class AccountAggregateRoot extends Aggregate
 {
     private int $balance = 0;
 
-    private int $accountLimit = -5000;
+    private int $accountLimit = -500;
 
     private int $accountLimitHitInARow = 0;
 
@@ -33,7 +33,7 @@ class AccountAggregateRoot extends Aggregate
         return $this;
     }
 
-    protected function applyMoneyAdded(MoneyAdded $event): void
+    protected function onMoneyAdded(MoneyAdded $event): void
     {
         $this->accountLimitHitInARow = 0;
 
@@ -57,7 +57,7 @@ class AccountAggregateRoot extends Aggregate
         return $this;
     }
 
-    protected function applyMoneySubtracted(MoneySubtracted $event): void
+    protected function onMoneySubtracted(MoneySubtracted $event): void
     {
         $this->balance -= $event->amount;
 
@@ -71,7 +71,7 @@ class AccountAggregateRoot extends Aggregate
         return $this;
     }
 
-    public function applyAccountLimitHit(): void
+    public function onAccountLimitHit(): void
     {
         $this->accountLimitHitInARow++;
     }

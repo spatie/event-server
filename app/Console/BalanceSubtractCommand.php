@@ -36,13 +36,13 @@ class BalanceSubtractCommand extends Command
         for ($i = 0; $i < ($input->getArgument('times') ?? 1); $i++) {
             try {
                 $accountAggregateRoot->subtractMoney($amount);
+
+                $account = Account::find($accountAggregateRoot->uuid);
+
+                $this->logger->log("Subtracted {$amount} from account `{$account->name}`, new balance is {$account->balance}");
             } catch (CouldNotSubtractMoney $couldNotSubtractMoney) {
                 $this->logger->error($couldNotSubtractMoney->getMessage());
             }
-
-            $account = Account::find($accountAggregateRoot->uuid);
-
-            $this->logger->log("Subtracted {$amount} from account `{$account->name}`, new balance is {$account->balance}");
         }
 
         return 0;

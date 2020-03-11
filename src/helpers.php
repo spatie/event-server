@@ -1,6 +1,7 @@
 <?php
 
 use Ramsey\Uuid\Uuid;
+use Spatie\EventServer\Console\Logger;
 use Spatie\EventServer\Container;
 use Spatie\EventServer\Domain\Event;
 
@@ -28,5 +29,12 @@ if (! function_exists('runOn')) {
         }
 
         return $client(Container::make()->gateway());
+    }
+}
+
+if (! function_exists('logger')) {
+    function logger(): Logger
+    {
+        return Container::make()->logger();
     }
 }

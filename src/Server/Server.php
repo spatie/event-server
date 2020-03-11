@@ -2,6 +2,7 @@
 
 namespace Spatie\EventServer\Server;
 
+use Exception;
 use React\EventLoop\LoopInterface;
 use React\Socket\ConnectionInterface;
 use React\Socket\Server as SocketServer;
@@ -83,14 +84,16 @@ class Server
             $this->logger->prefix('request')->comment($requestPayload->handlerClass);
 
             return $requestPayload->resolveHandler()($requestPayload);
-        } catch (Throwable $throwable) {
-            $this->handleRequestError($throwable);
+        } catch (Exception $exception) {
+            $this->handleRequestError($exception);
+
+            return new ExceptionPayload($exception);
         }
     }
 
     public function handleRequestError(Throwable $throwable): void
     {
-        $this->logger->error($throwable->getMessage());
+        $this->logger->prefix('error')->error($throwable->getMessage());
     }
 
     public function __destruct()

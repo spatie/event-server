@@ -5,6 +5,7 @@ namespace Spatie\EventServer\Client;
 use Spatie\EventServer\Domain\Aggregate;
 use Spatie\EventServer\Domain\Entity;
 use Spatie\EventServer\Domain\Event;
+use Spatie\EventServer\Server\ExceptionPayload;
 use Spatie\EventServer\Server\Payload;
 use Spatie\EventServer\Server\RequestHandlers\Entities\CreateEntityHandler;
 use Spatie\EventServer\Server\RequestHandlers\Entities\DeleteEntityHandler;
@@ -81,6 +82,12 @@ class Gateway
     {
         $payload = RequestPayload::make($handlerClass, $data);
 
-        return $this->client->send($payload);
+        $responsePayload = $this->client->send($payload);
+
+        if ($responsePayload instanceof ExceptionPayload) {
+            throw $responsePayload->toException();
+        }
+
+        return $responsePayload;
     }
 }
