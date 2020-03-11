@@ -36,7 +36,7 @@ class Container
 {
     private static ?self $instance = null;
 
-    private static array $singletons = [];
+    private array $singletons = [];
 
     public static bool $isServer = false;
 
@@ -116,17 +116,17 @@ class Container
         Closure $createInstance,
         ?Closure $afterCreated = null
     ) {
-        if (! isset(static::$singletons[$class])) {
+        if (! isset($this->singletons[$class])) {
             $instance = $createInstance();
 
-            static::$singletons[$class] = $instance;
+            $this->singletons[$class] = $instance;
 
             if ($afterCreated) {
                 $afterCreated($instance);
             }
         }
 
-        return static::$singletons[$class];
+        return $this->singletons[$class];
     }
 
     public function loop(): LoopInterface

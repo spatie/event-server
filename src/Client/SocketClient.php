@@ -8,6 +8,7 @@ use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
 use Spatie\EventServer\Server\Payload;
 use Spatie\EventServer\Server\RequestPayload;
+use Throwable;
 
 class SocketClient
 {
@@ -39,11 +40,12 @@ class SocketClient
                 });
 
                 $connection->write($payload->serialize());
-
             }, function (Exception $exception) {
                 throw $exception;
+            })
+            ->otherwise(function (Exception $exception) {
+                throw $exception;
             });
-
 
         $this->loop->run();
 

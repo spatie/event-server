@@ -2,9 +2,11 @@
 
 namespace Spatie\EventServer\Tests;
 
+use Spatie\EventServer\Config;
 use Spatie\EventServer\Container;
 use Spatie\EventServer\Tests\Fakes\IncreaseBalanceEvent;
 use Spatie\EventServer\Tests\Fakes\TestAggregate;
+use Spatie\EventServer\Tests\Fakes\TestConfig;
 use Spatie\EventServer\Tests\Fakes\TestEvent;
 use Symfony\Component\Process\Process;
 
@@ -47,31 +49,5 @@ class EventServerTest extends TestCase
 
         $this->assertEquals(16, $storedAggregate->balance);
         $this->assertEquals(3, $storedAggregate->version);
-    }
-
-    /** @test */
-    public function real_server()
-    {
-        $process = new Process(['php', __DIR__ . '/testServer.php']);
-
-        $process->run();
-
-        $uuid = uuid();
-
-        $aggregate = new TestAggregate($uuid);
-
-        $aggregate->increase(10);
-
-        $aggregate = TestAggregate::find($uuid);
-
-        $this->assertEquals(10, $aggregate->balance);
-
-        $process->stop();
-
-        $process->run();
-
-        $aggregate = TestAggregate::find($uuid);
-
-        $this->assertEquals(10, $aggregate->balance);
     }
 }
