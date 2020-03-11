@@ -3,7 +3,6 @@
 namespace App\Domain\Account\Projections;
 
 use App\Domain\Account\Entities\Account;
-use App\Domain\Account\Entities\AccountRepository;
 use App\Domain\Account\Events\AccountCreated;
 use App\Domain\Account\Events\AccountDeleted;
 use App\Domain\Account\Events\MoneyAdded;
