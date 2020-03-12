@@ -3,7 +3,6 @@
 namespace Spatie\EventServer\Domain;
 
 use ReflectionClass;
-use Spatie\EventServer\Domain\EventMeta;
 
 abstract class Event
 {
@@ -34,5 +33,12 @@ abstract class Event
         $this->meta()->aggregateUuid = $aggregate->uuid;
 
         return $this;
+    }
+
+    public function __unserialize(array $data): void
+    {
+        foreach ($data as $key => $value) {
+            $this->$key = $value;
+        }
     }
 }
