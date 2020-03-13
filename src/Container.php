@@ -105,7 +105,7 @@ class Container
                 throw new Exception("Could not autowire property {$reflectionParameter->getName()} in class {$reflectionClass->getName()}, its type is missing");
             }
 
-            $arguments[] = $this->autowire($parameterType->getName());
+            $arguments[] = $this->resolve($parameterType->getName());
         }
 
         return new $fqcn(...$arguments);
@@ -222,14 +222,6 @@ class Container
             ),
             fn(EventStore $eventStore) => $eventStore->setEventBus($this->eventBus())
         );
-    }
-
-    public function triggerEventHandler(): TriggerEventHandler
-    {
-        return $this->singleton(TriggerEventHandler::class, fn() => new TriggerEventHandler(
-            $this->eventBus(),
-            $this->eventStore()
-        ));
     }
 
     public function getAggregateHandler(): GetAggregateHandler

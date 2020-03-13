@@ -11,7 +11,7 @@ use App\Domain\Account\Events\MoreMoneyNeeded;
 use App\Domain\Account\Exceptions\CouldNotSubtractMoney;
 use Spatie\EventServer\Domain\AggregateRoot;
 
-class AccountAggregateRootRoot extends AggregateRoot
+class AccountAggregateRoot extends AggregateRoot
 {
     private int $balance = 0;
 

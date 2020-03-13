@@ -2,7 +2,7 @@
 
 namespace App\Console;
 
-use App\Domain\Account\AccountAggregateRootRoot;
+use App\Domain\Account\AccountAggregateRoot;
 use Spatie\EventServer\Console\Logger;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,7 +23,7 @@ class CreateAccountCommand extends Command
     {
         $userUuid = uuid();
 
-        $accountAggregateRoot = AccountAggregateRootRoot::new()->createAccount('Brent', $userUuid);
+        $accountAggregateRoot = AccountAggregateRoot::new()->createAccount('Brent', $userUuid);
 
         $this->logger->log("Account created with UUID {$accountAggregateRoot->uuid}");
 

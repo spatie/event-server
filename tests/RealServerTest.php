@@ -2,7 +2,7 @@
 
 namespace Spatie\EventServer\Tests;
 
-use App\Domain\Account\AccountAggregateRootRoot;
+use App\Domain\Account\AccountAggregateRoot;
 use App\Domain\Account\Entities\Account;
 use Exception;
 use Spatie\EventServer\Tests\Fakes\TestAggregateRoot;
@@ -40,7 +40,7 @@ class RealServerTest extends ServerTestCase
     {
         $this->startServer(true);
 
-        $aggregateRoot = AccountAggregateRootRoot::new()->createAccount('Brent', uuid());
+        $aggregateRoot = AccountAggregateRoot::new()->createAccount('Brent', uuid());
 
         $aggregateRoot->addMoney(100);
         $aggregateRoot->addMoney(100);

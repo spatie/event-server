@@ -2,15 +2,12 @@
 
 namespace App;
 
-use App\Console\BalanceAddCommand;
-use App\Console\BalanceSubtractCommand;
-use App\Console\CreateAccountCommand;
-use App\Console\ListAccountsCommand;
 use App\Domain\Account\Projections\AccountProjection;
 use App\Domain\Account\Reactors\OfferLoanReactor;
 use Spatie\EventServer\Console\ConsoleApplication;
 use Spatie\EventServer\Container as BaseContainer;
 use Spatie\EventServer\Domain\Subscribers;
+use Symfony\Component\Finder\Finder;
 
 class Container extends BaseContainer
 {
@@ -18,12 +15,16 @@ class Container extends BaseContainer
     {
         $application = parent::consoleApplication();
 
-        $application->addCommands([
-            new ListAccountsCommand($this->logger()),
-            new CreateAccountCommand($this->logger()),
-            new BalanceAddCommand($this->logger()),
-            new BalanceSubtractCommand($this->logger()),
-        ]);
+        /** @var \SplFileInfo[] $commands */
+        $commands = Finder::create()->in(__DIR__ . '/Console')->name('*Command.php');
+
+        foreach ($commands as $commandClass) {
+            $className = "\\App\\Console\\{$commandClass->getBasename('.php')}";
+
+            $command = $this->resolve($className);
+
+            $application->addCommands([$command]);
+        }
 
         return $application;
     }

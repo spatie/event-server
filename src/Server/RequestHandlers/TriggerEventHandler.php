@@ -23,6 +23,7 @@ class TriggerEventHandler implements RequestHandler
 
     public function __invoke(RequestPayload $payload): Payload
     {
+        /** @var \Spatie\EventServer\Domain\Event $event */
         $event = $payload->get('event');
 
         $this->eventStore->store($event);

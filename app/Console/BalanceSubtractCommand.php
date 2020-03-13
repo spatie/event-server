@@ -2,7 +2,7 @@
 
 namespace App\Console;
 
-use App\Domain\Account\AccountAggregateRootRoot;
+use App\Domain\Account\AccountAggregateRoot;
 use App\Domain\Account\Entities\Account;
 use App\Domain\Account\Exceptions\CouldNotSubtractMoney;
 use Spatie\EventServer\Console\Logger;
@@ -29,7 +29,7 @@ class BalanceSubtractCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $accountAggregateRoot = AccountAggregateRootRoot::find($input->getArgument('account'));
+        $accountAggregateRoot = AccountAggregateRoot::find($input->getArgument('account'));
 
         $amount = (int) $input->getArgument('amount');
 
