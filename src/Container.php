@@ -224,33 +224,6 @@ class Container
         );
     }
 
-    public function getAggregateHandler(): GetAggregateHandler
-    {
-        return $this->singleton(GetAggregateHandler::class, fn() => new GetAggregateHandler(
-            $this->aggregateRepository()
-        ));
-    }
-
-    public function listEntitiesHandler(): ListEntitiesHandler
-    {
-        return $this->singleton(ListEntitiesHandler::class, fn() => new ListEntitiesHandler());
-    }
-
-    public function findEntityHandler(): FindEntityHandler
-    {
-        return $this->singleton(FindEntityHandler::class, fn() => new FindEntityHandler());
-    }
-
-    public function createEntityHandler(): CreateEntityHandler
-    {
-        return $this->singleton(CreateEntityHandler::class, fn() => new CreateEntityHandler());
-    }
-
-    public function deleteEntityHandler(): DeleteEntityHandler
-    {
-        return $this->singleton(DeleteEntityHandler::class, fn() => new DeleteEntityHandler());
-    }
-
     public function aggregateRepository(): AggregateRepository
     {
         return $this->singleton(AggregateRepository::class, fn() => new AggregateRepository());
