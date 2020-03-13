@@ -2,9 +2,9 @@
 
 namespace Spatie\EventServer\Tests\Fakes;
 
-use Spatie\EventServer\Domain\Aggregate;
+use Spatie\EventServer\Domain\AggregateRoot;
 
-class TestAggregate extends Aggregate
+class TestAggregateRoot extends AggregateRoot
 {
     public int $balance = 0;
 

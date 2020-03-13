@@ -2,7 +2,7 @@
 
 namespace App\Console;
 
-use App\Domain\Account\AccountAggregateRoot;
+use App\Domain\Account\AccountAggregateRootRoot;
 use App\Domain\Account\Entities\Account;
 use Spatie\EventServer\Console\Logger;
 use Symfony\Component\Console\Command\Command;
@@ -29,7 +29,7 @@ class BalanceAddCommand extends Command
     {
         $uuid = $input->getArgument('account');
 
-        $accountAggregateRoot = AccountAggregateRoot::find($uuid);
+        $accountAggregateRoot = AccountAggregateRootRoot::find($uuid);
 
         $amount = (int) $input->getArgument('amount');
 

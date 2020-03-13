@@ -2,15 +2,15 @@
 
 namespace Spatie\EventServer\Tests\Domain;
 
-use Spatie\EventServer\Tests\Fakes\TestAggregate;
+use Spatie\EventServer\Tests\Fakes\TestAggregateRoot;
 use Spatie\EventServer\Tests\TestCase;
 
-class AggregateTest extends TestCase
+class AggregateRootTest extends TestCase
 {
     /** @test */
     public function test_create()
     {
-        $ledger = (new TestAggregate())
+        $ledger = (new TestAggregateRoot())
             ->increase(10)
             ->increase(5);
 
@@ -22,9 +22,9 @@ class AggregateTest extends TestCase
     {
         $uuid = uuid();
 
-        (new TestAggregate($uuid))->increase(10);
+        (new TestAggregateRoot($uuid))->increase(10);
 
-        $aggregate = TestAggregate::find($uuid);
+        $aggregate = TestAggregateRoot::find($uuid);
 
         $this->assertEquals(10, $aggregate->balance);
     }

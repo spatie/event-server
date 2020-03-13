@@ -9,9 +9,9 @@ use App\Domain\Account\Events\MoneyAdded;
 use App\Domain\Account\Events\MoneySubtracted;
 use App\Domain\Account\Events\MoreMoneyNeeded;
 use App\Domain\Account\Exceptions\CouldNotSubtractMoney;
-use Spatie\EventServer\Domain\Aggregate;
+use Spatie\EventServer\Domain\AggregateRoot;
 
-class AccountAggregateRoot extends Aggregate
+class AccountAggregateRootRoot extends AggregateRoot
 {
     private int $balance = 0;
 

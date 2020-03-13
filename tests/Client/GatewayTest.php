@@ -4,7 +4,7 @@ namespace Spatie\EventServer\Tests\Client;
 
 use Spatie\EventServer\Domain\Entity;
 use Spatie\EventServer\Tests\Fakes\IncreaseBalanceEvent;
-use Spatie\EventServer\Tests\Fakes\TestAggregate;
+use Spatie\EventServer\Tests\Fakes\TestAggregateRoot;
 use Spatie\EventServer\Tests\TestCase;
 
 class GatewayTest extends TestCase
@@ -14,17 +14,17 @@ class GatewayTest extends TestCase
     {
         $repository = $this->container->aggregateRepository();
 
-        $originalAggregate = $repository->resolve(TestAggregate::class, uuid());
+        $originalAggregate = $repository->resolve(TestAggregateRoot::class, uuid());
 
-        $aggregateFromServer = $this->gateway->getAggregate(TestAggregate::class, $originalAggregate->uuid);
+        $aggregateFromServer = $this->gateway->getAggregate(TestAggregateRoot::class, $originalAggregate->uuid);
 
-        $this->assertInstanceOf(TestAggregate::class, $aggregateFromServer);
+        $this->assertInstanceOf(TestAggregateRoot::class, $aggregateFromServer);
     }
 
     /** @test */
     public function get_aggregate_with_replayed_events()
     {
-        $aggregate = new TestAggregate();
+        $aggregate = new TestAggregateRoot();
 
         $event = (new IncreaseBalanceEvent())->forAggregate($aggregate);
 
@@ -36,10 +36,10 @@ class GatewayTest extends TestCase
 
         $this->server->run();
 
-        /** @var TestAggregate $aggregateFromServer */
-        $aggregateFromServer = $this->gateway->getAggregate(TestAggregate::class, $aggregate->uuid);
+        /** @var TestAggregateRoot $aggregateFromServer */
+        $aggregateFromServer = $this->gateway->getAggregate(TestAggregateRoot::class, $aggregate->uuid);
 
-        $this->assertInstanceOf(TestAggregate::class, $aggregateFromServer);
+        $this->assertInstanceOf(TestAggregateRoot::class, $aggregateFromServer);
         $this->assertEquals(16, $aggregateFromServer->balance);
         $this->assertEquals(3, $aggregateFromServer->version);
     }

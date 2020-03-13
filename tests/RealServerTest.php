@@ -2,10 +2,10 @@
 
 namespace Spatie\EventServer\Tests;
 
-use App\Domain\Account\AccountAggregateRoot;
+use App\Domain\Account\AccountAggregateRootRoot;
 use App\Domain\Account\Entities\Account;
 use Exception;
-use Spatie\EventServer\Tests\Fakes\TestAggregate;
+use Spatie\EventServer\Tests\Fakes\TestAggregateRoot;
 
 class RealServerTest extends ServerTestCase
 {
@@ -16,11 +16,11 @@ class RealServerTest extends ServerTestCase
 
         $uuid = uuid();
 
-        $aggregate = new TestAggregate($uuid);
+        $aggregate = new TestAggregateRoot($uuid);
 
         $aggregate->increase(10);
 
-        $aggregate = TestAggregate::find($uuid);
+        $aggregate = TestAggregateRoot::find($uuid);
 
         $this->assertEquals(10, $aggregate->balance);
 
@@ -28,7 +28,7 @@ class RealServerTest extends ServerTestCase
 
         $server = $this->startServer();
 
-        $aggregate = TestAggregate::find($uuid);
+        $aggregate = TestAggregateRoot::find($uuid);
 
         $this->assertEquals(10, $aggregate->balance);
 
@@ -40,7 +40,7 @@ class RealServerTest extends ServerTestCase
     {
         $this->startServer(true);
 
-        $aggregateRoot = AccountAggregateRoot::new()->createAccount('Brent', uuid());
+        $aggregateRoot = AccountAggregateRootRoot::new()->createAccount('Brent', uuid());
 
         $aggregateRoot->addMoney(100);
         $aggregateRoot->addMoney(100);

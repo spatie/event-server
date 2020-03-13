@@ -4,16 +4,16 @@ namespace Spatie\EventServer\Domain;
 
 use Spatie\EventServer\Container;
 
-abstract class Aggregate
+abstract class AggregateRoot
 {
     public string $uuid;
 
     public int $version = 0;
 
     /**
-     * @return \Spatie\EventServer\Domain\Aggregate|static
+     * @return \Spatie\EventServer\Domain\AggregateRoot|static
      */
-    public static function new(?string $uuid = null): Aggregate
+    public static function new(?string $uuid = null): AggregateRoot
     {
         return new static($uuid);
     }
@@ -26,9 +26,9 @@ abstract class Aggregate
     /**
      * @param string $uuid
      *
-     * @return \Spatie\EventServer\Domain\Aggregate|static
+     * @return \Spatie\EventServer\Domain\AggregateRoot|static
      */
-    public static function find(string $uuid): Aggregate
+    public static function find(string $uuid): AggregateRoot
     {
         return Container::make()->gateway()->getAggregate(static::class, $uuid);
     }

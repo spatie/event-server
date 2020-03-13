@@ -2,7 +2,7 @@
 
 namespace Spatie\EventServer\Client;
 
-use Spatie\EventServer\Domain\Aggregate;
+use Spatie\EventServer\Domain\AggregateRoot;
 use Spatie\EventServer\Domain\Entity;
 use Spatie\EventServer\Domain\Event;
 use Spatie\EventServer\Server\ExceptionPayload;
@@ -68,7 +68,7 @@ class Gateway
         ]);
     }
 
-    public function getAggregate(string $aggregateClass, string $aggregateUuid): Aggregate
+    public function getAggregate(string $aggregateClass, string $aggregateUuid): AggregateRoot
     {
         $payload = $this->request(GetAggregateHandler::class, [
             'aggregateClass' => $aggregateClass,

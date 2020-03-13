@@ -27,18 +27,11 @@ abstract class Event
         return 'on' . $this->getEventName();
     }
 
-    public function forAggregate(Aggregate $aggregate): self
+    public function forAggregate(AggregateRoot $aggregate): self
     {
         $this->meta()->aggregateClass = get_class($aggregate);
         $this->meta()->aggregateUuid = $aggregate->uuid;
 
         return $this;
-    }
-
-    public function __unserialize(array $data): void
-    {
-        foreach ($data as $key => $value) {
-            $this->$key = $value;
-        }
     }
 }

@@ -5,7 +5,7 @@ namespace Spatie\EventServer\Tests;
 use Spatie\EventServer\Config;
 use Spatie\EventServer\Container;
 use Spatie\EventServer\Tests\Fakes\IncreaseBalanceEvent;
-use Spatie\EventServer\Tests\Fakes\TestAggregate;
+use Spatie\EventServer\Tests\Fakes\TestAggregateRoot;
 use Spatie\EventServer\Tests\Fakes\TestConfig;
 use Spatie\EventServer\Tests\Fakes\TestEvent;
 use Symfony\Component\Process\Process;
@@ -27,7 +27,7 @@ class EventServerTest extends TestCase
     /** @test */
     public function stored_events_are_loaded_on_startup()
     {
-        $aggregate = new TestAggregate();
+        $aggregate = new TestAggregateRoot();
 
         $event = (new IncreaseBalanceEvent())->forAggregate($aggregate);
 
@@ -41,7 +41,7 @@ class EventServerTest extends TestCase
 
         $repository = $this->container->aggregateRepository();
 
-        /** @var TestAggregate $storedAggregate */
+        /** @var TestAggregateRoot $storedAggregate */
         $storedAggregate = $repository->resolve(
             get_class($aggregate),
             $aggregate->uuid
