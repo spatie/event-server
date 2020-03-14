@@ -218,20 +218,14 @@ class Container
     {
         return $this->singleton(
             EventStore::class,
-            fn() => $this->sqliteEventStore(),
+            fn() => $this->resolve($this->config->eventStore),
             fn(EventStore $eventStore) => $eventStore->setEventBus($this->eventBus())
         );
     }
 
     public function sqliteConnection(): Connection
     {
-
-        $path = __DIR__ . '/../.storage/events.sqlite';
-
-        return DriverManager::getConnection([
-//            'url' => 'sqlite:///:memory:',
-        'url' => "sqlite:///{$path}"
-        ]);
+        return DriverManager::getConnection($this->config->databaseConnection());
     }
 
     public function fileEventStore(): FileEventStore
