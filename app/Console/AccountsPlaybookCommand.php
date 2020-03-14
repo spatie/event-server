@@ -22,8 +22,12 @@ class AccountsPlaybookCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        foreach (range(1, 100) as $i) {
+        foreach (range(1, 10_000) as $i) {
             $aggregateRoot = AccountAggregateRoot::new()->createAccount("Account {$i}", uuid());
+
+            if ($i % 1000 === 0) {
+                $this->logger->info("{$i}/10.000");
+            }
 
             $aggregateRoot->addMoney(1000);
 

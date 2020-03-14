@@ -3,6 +3,8 @@
 namespace Spatie\EventServer;
 
 use Closure;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use Exception;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\EventLoop\LoopInterface;
@@ -20,11 +22,13 @@ use Spatie\EventServer\Domain\Subscribers;
 use Spatie\EventServer\Server\Events\EventBus;
 use Spatie\EventServer\Server\Events\EventStore;
 use Spatie\EventServer\Server\Events\FileEventStore;
+use Spatie\EventServer\Server\Events\SqliteEventStore;
 use Spatie\EventServer\Server\Server;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 
 class Container
 {
@@ -84,7 +88,7 @@ class Container
     {
         $reflectionClass = new ReflectionClass($fqcn);
 
-        if (!$reflectionClass->hasMethod('__construct')) {
+        if (! $reflectionClass->hasMethod('__construct')) {
             return new $fqcn;
         }
 
@@ -130,7 +134,7 @@ class Container
 
     public function subscribers(): Subscribers
     {
-        return $this->singleton(Subscribers::class, fn () => new Subscribers(
+        return $this->singleton(Subscribers::class, fn() => new Subscribers(
             $this->config->subscribers(),
         ));
     }
@@ -175,17 +179,20 @@ class Container
 
     public function consoleApplication(): ConsoleApplication
     {
-        return $this->singleton(ConsoleApplication::class, function () {
-            $application = new ConsoleApplication();
+        $application = new ConsoleApplication();
 
-            $application->addCommands([
-                new ServerCommand($this->server()),
-                new ClientCommand($this->logger()),
-                new SocketCommand($this->logger()),
-            ]);
+        /** @var \SplFileInfo[] $commands */
+        $commands = Finder::create()->in(__DIR__ . '/Console/Commands')->name('*Command.php');
 
-            return $application;
-        });
+        foreach ($commands as $commandClass) {
+            $className = "\\Spatie\\EventServer\\Console\\Commands\\{$commandClass->getBasename('.php')}";
+
+            $command = $this->resolve($className);
+
+            $application->addCommands([$command]);
+        }
+
+        return $application;
     }
 
     public function consoleInput(): InputInterface
@@ -211,10 +218,33 @@ class Container
     {
         return $this->singleton(
             EventStore::class,
-            fn() => new FileEventStore(
-                $this->config->storagePath
-            ),
+            fn() => $this->sqliteEventStore(),
             fn(EventStore $eventStore) => $eventStore->setEventBus($this->eventBus())
+        );
+    }
+
+    public function sqliteConnection(): Connection
+    {
+
+        $path = __DIR__ . '/../.storage/events.sqlite';
+
+        return DriverManager::getConnection([
+//            'url' => 'sqlite:///:memory:',
+        'url' => "sqlite:///{$path}"
+        ]);
+    }
+
+    public function fileEventStore(): FileEventStore
+    {
+        return new FileEventStore(
+            $this->config->storagePath
+        );
+    }
+
+    public function sqliteEventStore(): SqliteEventStore
+    {
+        return new SqliteEventStore(
+            $this->sqliteConnection()
         );
     }
 

@@ -36,7 +36,7 @@ class SocketClient
             ->connect($this->listenUri)
             ->then(function (ConnectionInterface $connection) use ($payload, &$output) {
                 $connection->on('data', function ($data) use (&$output) {
-                    $output = $data;
+                    $output .= $data;
                 });
 
                 $connection->write($payload->serialize());
