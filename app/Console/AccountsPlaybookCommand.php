@@ -22,11 +22,13 @@ class AccountsPlaybookCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        foreach (range(1, 10_000) as $i) {
-            $aggregateRoot = AccountAggregateRoot::new()->createAccount("Account {$i}", uuid());
+        $max = 100000;
 
-            if ($i % 1000 === 0) {
-                $this->logger->info("{$i}/10.000");
+        foreach (range(1, $max) as $i) {
+            $aggregateRoot = AccountAggregateRoot::new()->createAccount("Account {$i}");
+
+            if ($i % ($max / 20) === 0) {
+                $this->logger->info("{$i}/{$max}");
             }
 
             $aggregateRoot->addMoney(1000);

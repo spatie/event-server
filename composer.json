@@ -29,7 +29,6 @@
     "require-dev" : {
         "phpunit/phpunit": "^8.2",
         "seregazhuk/php-watcher": "^0.5.2",
-        "spatie/async": "^1.2",
         "symfony/process": "^5.0",
         "symfony/var-dumper": "^5.0"
     },

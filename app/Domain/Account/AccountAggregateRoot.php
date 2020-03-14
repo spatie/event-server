@@ -19,9 +19,9 @@ class AccountAggregateRoot extends AggregateRoot
 
     private int $accountLimitHitInARow = 0;
 
-    public function createAccount(string $name, string $userId): self
+    public function createAccount(string $name): self
     {
-        $this->event(new AccountCreated($name, $userId));
+        $this->event(new AccountCreated($name));
 
         return $this;
     }

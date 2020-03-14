@@ -2,7 +2,7 @@
 
 namespace Spatie\EventServer;
 
-use Spatie\EventServer\Server\Events\SqliteEventStore;
+use Spatie\EventServer\Server\Events\DatabaseEventStore;
 
 class Config
 {
@@ -10,7 +10,7 @@ class Config
 
     public string $listenUri = '127.0.0.1:8181';
 
-    public string $eventStore = SqliteEventStore::class;
+    public string $eventStore = DatabaseEventStore::class;
 
     public function databaseConnection(): array
     {

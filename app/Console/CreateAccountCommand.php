@@ -21,9 +21,7 @@ class CreateAccountCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $userUuid = uuid();
-
-        $accountAggregateRoot = AccountAggregateRoot::new()->createAccount('Brent', $userUuid);
+        $accountAggregateRoot = AccountAggregateRoot::new()->createAccount('Brent');
 
         $this->logger->log("Account created with UUID {$accountAggregateRoot->uuid}");
 

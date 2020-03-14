@@ -22,7 +22,7 @@ use Spatie\EventServer\Domain\Subscribers;
 use Spatie\EventServer\Server\Events\EventBus;
 use Spatie\EventServer\Server\Events\EventStore;
 use Spatie\EventServer\Server\Events\FileEventStore;
-use Spatie\EventServer\Server\Events\SqliteEventStore;
+use Spatie\EventServer\Server\Events\DatabaseEventStore;
 use Spatie\EventServer\Server\Server;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -223,7 +223,7 @@ class Container
         );
     }
 
-    public function sqliteConnection(): Connection
+    public function databaseConnection(): Connection
     {
         return DriverManager::getConnection($this->config->databaseConnection());
     }
@@ -235,10 +235,10 @@ class Container
         );
     }
 
-    public function sqliteEventStore(): SqliteEventStore
+    public function databaseEventStore(): DatabaseEventStore
     {
-        return new SqliteEventStore(
-            $this->sqliteConnection()
+        return new DatabaseEventStore(
+            $this->databaseConnection()
         );
     }
 

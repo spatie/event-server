@@ -40,7 +40,7 @@ class RealServerTest extends ServerTestCase
     {
         $this->startServer(true);
 
-        $aggregateRoot = AccountAggregateRoot::new()->createAccount('Brent', uuid());
+        $aggregateRoot = AccountAggregateRoot::new()->createAccount('Brent');
 
         $aggregateRoot->addMoney(100);
         $aggregateRoot->addMoney(100);

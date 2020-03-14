@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Schema;
 use Spatie\EventServer\Domain\Event;
 
-class SqliteEventStore extends EventStore
+class DatabaseEventStore extends EventStore
 {
     private Connection $connection;
 
@@ -33,6 +33,7 @@ class SqliteEventStore extends EventStore
             ->createQueryBuilder()
             ->select('*')
             ->from('stored_events')
+            ->orderBy('id')
             ->execute();
 
         while($row = $statement->fetch()) {
@@ -60,11 +61,18 @@ class SqliteEventStore extends EventStore
         if (! $tableExists) {
             $schema = new Schema();
 
-            $table = $schema->createTable("stored_events");
+            $table = $schema->createTable('stored_events');
+
+            $id = $table->addColumn('id', 'integer');
+            $id->setAutoincrement(true);
+
             $table->addColumn('uuid', 'string');
-            $table->setPrimaryKey(['uuid']);
+
             $table->addColumn('serialized_event', 'text');
             $table->addColumn('timestamp', 'integer');
+
+            $table->setPrimaryKey(['id']);
+            $table->addUniqueIndex(['uuid']);
 
             $this->connection
                 ->getSchemaManager()

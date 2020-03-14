@@ -2,8 +2,8 @@
 
 <?php
 
+use App\Config;
 use App\Container;
-use Spatie\EventServer\Config;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
