@@ -67,8 +67,8 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
         $filename = "{$this->config->storagePath}/{$name}";
 
-        $this->assertTrue(
-            file_exists($filename),
+        $this->assertFileExists(
+            $filename,
             "Failed to assert that event was stored in {$filename}"
         );
     }
